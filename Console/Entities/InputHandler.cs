@@ -5,31 +5,53 @@ namespace ConsoleProject.Entities
 {
     internal abstract class InputHandler
     {
-        private static void ClearAllLinesExceptTwoFirsts()
+        public static void DisplayPlayerName(string name)
         {
-            for (int cursorHeight = 2; cursorHeight < Console.BufferHeight; cursorHeight++)
-            {
-                Console.SetCursorPosition(0, cursorHeight);
-                Console.Write(new string(' ', Console.BufferWidth));
-            }
+            Console.Clear();
 
-            Console.SetCursorPosition(0, 2);
-        }
-
-        private static void DisplayCellChoiceConsigns(Grid grid, int size, int cellsCount)
-        {
-            ClearAllLinesExceptTwoFirsts();
-
-            grid.Write(true);
-
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine("Please specify the coordinates of the next cell and press enter (e.g. A1)\nBoat size : {0} - Cells to place : {1}\n", size, size - cellsCount);
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("{0}\n", name);
             Console.ResetColor();
         }
 
-        public static void PlaceBoatOnGrid(Grid grid, int size)
+        public static Cell ReadCell(Grid grid)
         {
-            DisplayCellChoiceConsigns(grid, size, 0);
+            string? coordinates = Console.ReadLine();
+
+            if (coordinates == null)
+            {
+                throw new Exception("Coordinates not provided");
+            }
+
+            Regex regex = new("^([A-Z]{1})([0-9]+)$");
+
+            if (!regex.IsMatch(coordinates))
+            {
+                throw new Exception("Coordinates are not valid");
+            }
+
+            Match match = regex.Match(coordinates);
+
+            int colonne = Alphabet.IndexOf(Convert.ToChar(match.Groups[1].Value));
+            int ligne = Convert.ToInt32(match.Groups[2].Value) - 1;
+
+            return grid.GetCell(colonne, ligne);
+        }
+
+        public static void PlaceBoatOnGrid(string player, Grid grid, int size)
+        {
+            static void DisplayCellChoiceConsigns(string player, Grid grid, int size, int cellsCount)
+            {
+                DisplayPlayerName(player);
+
+                grid.Write(true);
+
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine("Please specify the coordinates of the next cell and press enter (e.g. A1)\nBoat size : {0} - Cells to place : {1}\n", size, size - cellsCount);
+                Console.ResetColor();
+            }
+
+            DisplayCellChoiceConsigns(player, grid, size, 0);
 
             List<Cell> cells = new ();
 
@@ -37,26 +59,7 @@ namespace ConsoleProject.Entities
             {
                 try
                 {
-                    string? coordinates = Console.ReadLine();
-
-                    if (coordinates == null)
-                    {
-                        throw new Exception("Coordinates not provided");
-                    }
-
-                    Regex regex = new ("^([A-Z]{1})([0-9]+)$");
-
-                    if (!regex.IsMatch(coordinates))
-                    {
-                        throw new Exception("Coordinates are not valid");
-                    }
-
-                    Match match = regex.Match(coordinates);
-
-                    int colonne = Alphabet.IndexOf(Convert.ToChar(match.Groups[1].Value));
-                    int ligne = Convert.ToInt32(match.Groups[2].Value) - 1;
-
-                    Cell cell = grid.GetCell(colonne, ligne);
+                    Cell cell = ReadCell(grid);
 
                     if (cell.Selected)
                     {
@@ -77,12 +80,12 @@ namespace ConsoleProject.Entities
 
                     cells.Add(cell);
 
-                    DisplayCellChoiceConsigns(grid, size, cells.Count);
+                    DisplayCellChoiceConsigns(player, grid, size, cells.Count);
                 }
                 catch (Exception e)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("\n{0}\n", e.Message);
+                    Console.WriteLine(e.Message);
                     Console.ResetColor();
                 }
             }
@@ -90,6 +93,49 @@ namespace ConsoleProject.Entities
             Boat boat = new (cells);
 
             grid.AddBoat(boat);
+        }
+
+        public static void DiscoverCell(Grid grid)
+        {
+            grid.Write();
+
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("Please specify the coordinates of the cell you would like to discover and press enter (e.g. A1)\n");
+            Console.ResetColor();
+
+            while (true)
+            {
+                try
+                {
+                    Cell cell = ReadCell(grid);
+
+                    if (cell.Discover)
+                    {
+                        throw new Exception("Cell is already discovered");
+                    }
+                    else
+                    {
+                        cell.Discover = true;
+
+                        break;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(e.Message);
+                    Console.ResetColor();
+                }
+            }
+        }
+
+        public static void Win()
+        {
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.WriteLine("\nYou win !");
+            Console.ResetColor();
+
+            Environment.Exit(0);
         }
     }
 }

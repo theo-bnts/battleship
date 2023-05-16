@@ -5,26 +5,26 @@
         private readonly int x;
         private readonly int y;
         private bool selected;
-        private bool hit;
+        private bool discover;
 
         public bool Selected
         {
-            get { return selected; }
-            set { selected = value; }
+            get { return this.selected; }
+            set { this.selected = value; }
         }
 
-        public bool Hit
+        public bool Discover
         {
-            get { return hit; }
-            set { hit = value; }
+            get { return this.discover; }
+            set { this.discover = value; }
         }
 
         public Cell(int x, int y)
         {
             this.x = x;
             this.y = y;
-            selected = false;
-            hit = false;
+            this.selected = false;
+            this.discover = false;
         }
 
         public bool HaveSamePosition(Cell cell)
@@ -96,5 +96,7 @@
 
             return areAligned;
         }
+
+
     }
 }

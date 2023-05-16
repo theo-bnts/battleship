@@ -12,20 +12,20 @@ namespace ConsoleProject.Entities
 
         public int Width
         {
-            get { return width; }
+            get { return this.width; }
         }
 
         public int Height
         {
-            get { return height; }
+            get { return this.height; }
         }
 
         public Grid(int width, int heigth)
         {
             this.width = width;
-            height = heigth;
-            cells = new List<Cell>();
-            boats = new List<Boat>();
+            this.height = heigth;
+            this.cells = new List<Cell>();
+            this.boats = new List<Boat>();
 
             for (int y = 0; y < height; y++)
             {
@@ -96,6 +96,10 @@ namespace ConsoleProject.Entities
             boats.Add(boat);
         }
 
+        public bool AllBoatsDestroyed()
+        {
+            return this.boats.All(boat => boat.IsDestroyed() == true);
+        }
 
         public void Write(bool boatPlacementMode = false)
         {
@@ -129,7 +133,7 @@ namespace ConsoleProject.Entities
                     }
                     else
                     {
-                        if (cell.Hit)
+                        if (cell.Discover)
                         {
                             if (IsBoat(cell))
                             {
