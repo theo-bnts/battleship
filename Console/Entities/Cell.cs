@@ -5,7 +5,17 @@
         private readonly int x;
         private readonly int y;
         private bool selected;
-        private bool hit;
+        private bool discover;
+
+        public int X
+        {
+            get { return x; }
+        }
+
+        public int Y
+        {
+            get { return y; }
+        }
 
         public bool Selected
         {
@@ -13,10 +23,10 @@
             set { selected = value; }
         }
 
-        public bool Hit
+        public bool Discover
         {
-            get { return hit; }
-            set { hit = value; }
+            get { return discover; }
+            set { discover = value; }
         }
 
         public Cell(int x, int y)
@@ -24,7 +34,7 @@
             this.x = x;
             this.y = y;
             selected = false;
-            hit = false;
+            discover = false;
         }
 
         public bool HaveSamePosition(Cell cell)
@@ -56,12 +66,12 @@
 
         public bool IsHorizontalNeighbour(Cell cell)
         {
-            return IsNeighbour(cell) && cell.x == x;
+            return IsNeighbour(cell) && cell.y == y;
         }
 
         public bool IsVerticalNeighbour(Cell cell)
         {
-            return IsNeighbour(cell) && cell.y == y;
+            return IsNeighbour(cell) && cell.x == x;
         }
 
         public static List<Cell> SortByAbscissaAndOrdinate(List<Cell> cells)
@@ -69,7 +79,7 @@
             return cells.OrderBy(cell => cell.x).ThenBy(cell => cell.y).ToList();
         }
 
-        public static bool AreHorizonltalyOrVerticallyAligned(List<Cell> cells)
+        public static bool AreHorizonltallyOrVerticallyAligned(List<Cell> cells)
         {
             bool areAligned = true;
 

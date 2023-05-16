@@ -96,6 +96,10 @@ namespace ConsoleProject.Entities
             boats.Add(boat);
         }
 
+        public bool AllBoatsDestroyed()
+        {
+            return boats.All(boat => boat.IsDestroyed() == true);
+        }
 
         public void Write(bool boatPlacementMode = false)
         {
@@ -129,7 +133,7 @@ namespace ConsoleProject.Entities
                     }
                     else
                     {
-                        if (cell.Hit)
+                        if (cell.Discover)
                         {
                             if (IsBoat(cell))
                             {

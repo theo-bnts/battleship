@@ -1,29 +1,50 @@
 ﻿using ConsoleProject.Entities;
 using ConsoleProject.Tools;
 
-API api = new ();
-await api.GetDataAsync();
-
-Console.ForegroundColor = ConsoleColor.Green;
-Console.WriteLine("Player A");
+Console.ForegroundColor = ConsoleColor.Red;
+Console.WriteLine("Please maximise your console to continue");
 Console.ResetColor();
+
+while (Console.WindowWidth < Console.LargestWindowWidth * 0.9 || Console.WindowHeight < Console.LargestWindowHeight * 0.9)
+{
+    Thread.Sleep(100);
+}
+
+API api = new ();
+await api.GetData();
 
 Grid gridA = new (api.Width, api.Height);
 
 foreach (int boatSize in api.BoatSizes)
 {
-    InputHandler.PlaceBoatOnGrid(gridA, boatSize);
+    InputHandler.PlaceBoatOnGrid("Player A", gridA, boatSize);
 }
-
-Console.Clear();
-
-Console.ForegroundColor = ConsoleColor.Green;
-Console.WriteLine("Player B");
-Console.ResetColor();
 
 Grid gridB = new (api.Width, api.Height);
 
 foreach (int boatSize in api.BoatSizes)
 {
-    InputHandler.PlaceBoatOnGrid(gridB, boatSize);
+    InputHandler.PlaceBoatOnGrid("Player B", gridB, boatSize);
 }
+
+do
+{
+    InputHandler.DisplayPlayerName("Player A");
+
+    InputHandler.DiscoverCell(gridB);
+
+    if (gridB.AllBoatsDestroyed())
+    {
+        InputHandler.Win();
+    }
+
+    InputHandler.DisplayPlayerName("Player B");
+
+    InputHandler.DiscoverCell(gridA);
+
+    if (gridA.AllBoatsDestroyed())
+    {
+        InputHandler.Win();
+    }
+}
+while (!gridA.AllBoatsDestroyed() && !gridB.AllBoatsDestroyed());

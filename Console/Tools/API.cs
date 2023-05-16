@@ -2,7 +2,7 @@
 
 namespace ConsoleProject.Tools
 {
-    public class Attributes
+    public class TopLevelAttributes
     {
         public int nbLignes { get; set; }
         public int nbColonnes { get; set; }
@@ -41,7 +41,7 @@ namespace ConsoleProject.Tools
             get => boatSizes;
         }
 
-        public async Task GetDataAsync()
+        public async Task GetData()
         {
             client.DefaultRequestHeaders.Add(apiKeyHeader, apiValueHeader);
 
@@ -51,7 +51,7 @@ namespace ConsoleProject.Tools
             {
                 string stringResponse = await response.Content.ReadAsStringAsync();
 
-                Attributes? serializedResponse = JsonSerializer.Deserialize<Attributes>(stringResponse);
+                TopLevelAttributes? serializedResponse = JsonSerializer.Deserialize<TopLevelAttributes>(stringResponse);
 
                 if (serializedResponse == null || serializedResponse.bateaux == null)
                 {
