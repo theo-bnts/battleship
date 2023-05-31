@@ -5,11 +5,10 @@ namespace ConsoleProject.Entities
 {
     internal abstract class InputHandler
     {
-        public static void DisplayPlayerName(string name)
+        public static void DisplayPlayerName(string name, int topOffset = 0, int leftOffset = 0)
         {
-            Console.Clear();
-
             Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.SetCursorPosition(leftOffset, Console.CursorTop + topOffset);
             Console.WriteLine("{0}\n", name);
             Console.ResetColor();
         }
@@ -42,6 +41,8 @@ namespace ConsoleProject.Entities
         {
             static void DisplayCellChoiceConsigns(string player, Grid grid, int size, int cellsCount)
             {
+                Console.Clear();
+
                 DisplayPlayerName(player);
 
                 grid.Write(true);
@@ -66,7 +67,7 @@ namespace ConsoleProject.Entities
                         throw new Exception("Cell is already selected");
                     }
 
-                    if (grid.IsBoatNeighbour(cell))
+                    if (cell.IsBoatNeighbour(grid))
                     {
                         throw new Exception("Cell is too close to another boat");
                     }
@@ -100,10 +101,19 @@ namespace ConsoleProject.Entities
             grid.AddBoat(boat);
         }
 
+        public static void DisplayGrids(Grid gridA, Grid gridB, bool aBoatPlacementMode, bool bBoatPlacementMode)
+        {
+            Console.Clear();
+
+            DisplayPlayerName("Player A");
+            DisplayPlayerName("Player B", -2, 4 * (gridB.Width + 1) + (gridB.Height.ToString().Length - 1) + 10);
+
+            gridA.Write(aBoatPlacementMode, 0, 0);
+            gridB.Write(bBoatPlacementMode, 0 - (2 * (gridA.Height + 1) + 2), 4 * (gridB.Width + 1) + (gridB.Height.ToString().Length - 1) + 10);
+        }
+
         public static void DiscoverCell(Grid grid)
         {
-            grid.Write();
-
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine("Please specify the coordinates of the cell you would like to discover and press enter (e.g. A1)\n");
             Console.ResetColor();
@@ -121,6 +131,28 @@ namespace ConsoleProject.Entities
                     else
                     {
                         cell.Discover = true;
+
+                        Console.ForegroundColor = ConsoleColor.Green;
+
+                        if (cell.IsBoat(grid))
+                        {
+                            if (cell.GetRelativeBoat(grid).IsDestroyed())
+                            {
+                                Console.WriteLine("\nTouché-coulé");
+                            }
+                            else
+                            {
+                                Console.WriteLine("\nTouché");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("\nPlouf");
+                        }
+
+                        Console.ResetColor();
+
+                        Thread.Sleep(1_500);
 
                         break;
                     }

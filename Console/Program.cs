@@ -3,11 +3,12 @@ using ConsoleProject.Tools;
 
 Console.ForegroundColor = ConsoleColor.Red;
 Console.WriteLine("Please maximise your console to continue");
+Console.WriteLine("Do not use Microsoft Terminal");
 Console.ResetColor();
 
 while (Console.WindowWidth < Console.LargestWindowWidth * 0.9 || Console.WindowHeight < Console.LargestWindowHeight * 0.9)
 {
-    Thread.Sleep(100);
+    Thread.Sleep(1_000);
 }
 
 API api = new ();
@@ -29,7 +30,11 @@ foreach (int boatSize in api.BoatSizes)
 
 do
 {
-    InputHandler.DisplayPlayerName("Player A");
+    Console.Clear();
+
+    InputHandler.DisplayGrids(gridA, gridB, true, false);
+
+    InputHandler.DisplayPlayerName("Player A turn");
 
     InputHandler.DiscoverCell(gridB);
 
@@ -38,7 +43,11 @@ do
         InputHandler.Win();
     }
 
-    InputHandler.DisplayPlayerName("Player B");
+    Console.Clear();
+
+    InputHandler.DisplayGrids(gridA, gridB, false, true);
+
+    InputHandler.DisplayPlayerName("Player B turn");
 
     InputHandler.DiscoverCell(gridA);
 

@@ -20,6 +20,11 @@ namespace ConsoleProject.Entities
             get { return height; }
         }
 
+        public List<Boat> Boats
+        {
+            get { return boats; }
+        }
+
         public Grid(int width, int heigth)
         {
             this.width = width;
@@ -48,46 +53,11 @@ namespace ConsoleProject.Entities
             return cells[index];
         }
 
-        public bool IsBoat(Cell cell)
-        {
-            bool isABoat = false;
-
-            foreach (Boat boat in boats)
-            {
-                foreach (Cell boatCell in boat.Cells)
-                {
-                    if (cell.HaveSamePosition(boatCell))
-                    {
-                        isABoat = true;
-                    }
-                }
-            }
-
-            return isABoat;
-        }
-
-        public bool IsBoatNeighbour(Cell cell)
-        {
-            bool isNeighbourOfABoat = false;
-
-            foreach (Boat boat in boats)
-            {
-                foreach (Cell boatCell in boat.Cells)
-                {
-                    if (cell.IsNeighbour(boatCell))
-                    {
-                        isNeighbourOfABoat = true;
-                    }
-                }
-            }
-            return isNeighbourOfABoat;
-        }
-
         public void AddBoat(Boat boat)
         {
             foreach (Cell cell in boat.Cells)
             {
-                if (IsBoat(cell) || IsBoatNeighbour(cell))
+                if (cell.IsBoat(this) || cell.IsBoatNeighbour(this))
                 {
                     throw new Exception("Boat is overlapping or too close to another boat");
                 }
@@ -101,9 +71,9 @@ namespace ConsoleProject.Entities
             return boats.All(boat => boat.IsDestroyed() == true);
         }
 
-        public void Write(bool boatPlacementMode = false)
+        public string ToString(bool boatPlacementMode = false)
         {
-            List<string> columnNames = new List<string>() { " " };
+            List<string> columnNames = new () { " " };
 
             columnNames.AddRange(Alphabet.Take(width).Select(c => c.ToString()));
 
@@ -122,22 +92,45 @@ namespace ConsoleProject.Entities
 
                     if (boatPlacementMode)
                     {
-                        if (cell.Selected)
+                        if (cell.Discover)
                         {
-                            row.Add("@");
+                            if (cell.IsBoat(this))
+                            {
+                                row.Add("X");
+                            }
+                            else
+                            {
+                                row.Add("-");
+                            }
                         }
                         else
                         {
-                            row.Add(" ");
+                            if (cell.Selected)
+                            {
+                                row.Add("@");
+                            }
+                            else
+                            {
+                                row.Add(" ");
+                            }
                         }
                     }
                     else
                     {
                         if (cell.Discover)
                         {
-                            if (IsBoat(cell))
+                            if (cell.IsBoat(this))
                             {
-                                row.Add("@");
+                                Boat boat = cell.GetRelativeBoat(this);
+
+                                if (boat.IsDestroyed())
+                                {
+                                    row.Add("@");
+                                }
+                                else
+                                {
+                                    row.Add("X");
+                                }
                             }
                             else
                             {
@@ -154,8 +147,20 @@ namespace ConsoleProject.Entities
                 table.AddRow(row.ToArray());
             }
 
-            table.Write(Format.Alternative);
+            return table.ToStringAlternative();
         }
 
+        public void Write(bool boatPlacementMode = false, int topOffset = 0, int leftOffset = 0)
+        {
+            string[] lines = ToString(boatPlacementMode).Split("\n");
+
+            Console.CursorTop += topOffset;
+
+            foreach (string line in lines)
+            {
+                Console.SetCursorPosition(leftOffset, Console.CursorTop);
+                Console.WriteLine(line);
+            }
+        }
     }
 }

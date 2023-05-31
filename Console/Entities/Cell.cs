@@ -1,4 +1,6 @@
-﻿namespace ConsoleProject.Entities
+﻿using System.Collections.Generic;
+
+namespace ConsoleProject.Entities
 {
     internal class Cell
     {
@@ -72,6 +74,48 @@
         public bool IsVerticalNeighbour(Cell cell)
         {
             return IsNeighbour(cell) && cell.x == x;
+        }
+
+        public Boat GetRelativeBoat(Grid grid)
+        {
+            Boat result = null;
+
+            foreach (Boat boat in grid.Boats)
+            {
+                foreach (Cell boatCell in boat.Cells)
+                {
+                    if (HaveSamePosition(boatCell))
+                    {
+                        result = boat;
+                        break;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public bool IsBoat(Grid grid)
+        {
+            return GetRelativeBoat(grid) != null;
+        }
+
+        public bool IsBoatNeighbour(Grid grid)
+        {
+            bool isNeighbourOfABoat = false;
+
+            foreach (Boat boat in grid.Boats)
+            {
+                foreach (Cell boatCell in boat.Cells)
+                {
+                    if (IsNeighbour(boatCell))
+                    {
+                        isNeighbourOfABoat = true;
+                    }
+                }
+            }
+
+            return isNeighbourOfABoat;
         }
 
         public static List<Cell> SortByAbscissaAndOrdinate(List<Cell> cells)
