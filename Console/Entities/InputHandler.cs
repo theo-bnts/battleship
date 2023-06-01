@@ -3,8 +3,17 @@ using System.Text.RegularExpressions;
 
 namespace ConsoleProject.Entities
 {
+    /// <summary>
+    /// Handles user input and interaction with the game.
+    /// </summary>
     internal abstract class InputHandler
     {
+        /// <summary>
+        /// Displays the player's name on the console.
+        /// </summary>
+        /// <param name="name">The name of the player.</param>
+        /// <param name="topOffset">The offset from the top of the console.</param>
+        /// <param name="leftOffset">The offset from the left of the console.</param>
         public static void DisplayPlayerName(string name, int topOffset = 0, int leftOffset = 0)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
@@ -13,16 +22,17 @@ namespace ConsoleProject.Entities
             Console.ResetColor();
         }
 
+        /// <summary>
+        /// Reads the user's input for cell coordinates and returns the corresponding cell on the grid.
+        /// </summary>
+        /// <param name="grid">The grid on which the cell is located.</param>
+        /// <returns>The cell specified by the user.</returns>
+        /// <exception cref="Exception">Thrown when the input coordinates are not valid.</exception>
         public static Cell ReadCell(Grid grid)
         {
-            string? coordinates = Console.ReadLine();
+            string coordinates = Console.ReadLine() ?? throw new Exception("Coordinates not provided");
 
-            if (coordinates == null)
-            {
-                throw new Exception("Coordinates not provided");
-            }
-
-            Regex regex = new("^([A-Z]{1})([0-9]+)$");
+            Regex regex = new("^([a-zA-Z]{1})([0-9]+)$");
 
             if (!regex.IsMatch(coordinates))
             {
@@ -37,6 +47,13 @@ namespace ConsoleProject.Entities
             return grid.GetCell(colonne, ligne);
         }
 
+        /// <summary>
+        /// Places a boat on the grid based on the user's input.
+        /// </summary>
+        /// <param name="player">The name of the player.</param>
+        /// <param name="grid">The grid on which to place the boat.</param>
+        /// <param name="size">The size of the boat.</param>
+        /// <exception cref="Exception">Thrown when the selected cell is invalid or the boat placement is not allowed.</exception>
         public static void PlaceBoatOnGrid(string player, Grid grid, int size)
         {
             static void DisplayCellChoiceConsigns(string player, Grid grid, int size, int cellsCount)
@@ -72,7 +89,7 @@ namespace ConsoleProject.Entities
                         throw new Exception("Cell is too close to another boat");
                     }
 
-                    if (!Cell.AreHorizonltallyOrVerticallyAligned(cells.Concat(new List<Cell> { cell }).ToList()))
+                    if (!Cell.AreHorizontallyOrVerticallyAligned(cells.Concat(new List<Cell> { cell }).ToList()))
                     {
                         throw new Exception("Boat cells are not neighbours or horizontally / vertically aligned");
                     }
@@ -101,6 +118,13 @@ namespace ConsoleProject.Entities
             grid.AddBoat(boat);
         }
 
+        /// <summary>
+        /// Displays the grids of both players on the console.
+        /// </summary>
+        /// <param name="gridA">The grid of Player A.</param>
+        /// <param name="gridB">The grid of Player B.</param>
+        /// <param name="aBoatPlacementMode">Flag indicating whether to show Player A's grid in boat placement mode.</param>
+        /// <param name="bBoatPlacementMode">Flag indicating whether to show Player B's grid in boat placement mode.</param>
         public static void DisplayGrids(Grid gridA, Grid gridB, bool aBoatPlacementMode, bool bBoatPlacementMode)
         {
             Console.Clear();
@@ -108,10 +132,15 @@ namespace ConsoleProject.Entities
             DisplayPlayerName("Player A");
             DisplayPlayerName("Player B", -2, 4 * (gridB.Width + 1) + (gridB.Height.ToString().Length - 1) + 10);
 
-            gridA.Write(aBoatPlacementMode, 0, 0);
+            gridA.Write(aBoatPlacementMode);
             gridB.Write(bBoatPlacementMode, 0 - (2 * (gridA.Height + 1) + 2), 4 * (gridB.Width + 1) + (gridB.Height.ToString().Length - 1) + 10);
         }
 
+        /// <summary>
+        /// Allows the user to discover a cell on the grid and provides feedback on the result.
+        /// </summary>
+        /// <param name="grid">The grid on which to discover the cell.</param>
+        /// <exception cref="Exception">Thrown when the selected cell is already discovered.</exception>
         public static void DiscoverCell(Grid grid)
         {
             Console.ForegroundColor = ConsoleColor.Blue;
@@ -138,21 +167,21 @@ namespace ConsoleProject.Entities
                         {
                             if (cell.GetRelativeBoat(grid).IsDestroyed())
                             {
-                                Console.WriteLine("\nTouché-coulé");
+                                Console.WriteLine("\nSunk");
                             }
                             else
                             {
-                                Console.WriteLine("\nTouché");
+                                Console.WriteLine("\nHit");
                             }
                         }
                         else
                         {
-                            Console.WriteLine("\nPlouf");
+                            Console.WriteLine("\nMissed");
                         }
 
                         Console.ResetColor();
 
-                        Thread.Sleep(1_500);
+                        Thread.Sleep(1_000);
 
                         break;
                     }
@@ -166,6 +195,9 @@ namespace ConsoleProject.Entities
             }
         }
 
+        /// <summary>
+        /// Displays a message indicating that the player has won the game and exits the application.
+        /// </summary>
         public static void Win()
         {
             Console.ForegroundColor = ConsoleColor.Magenta;

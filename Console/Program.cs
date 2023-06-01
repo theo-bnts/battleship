@@ -2,8 +2,8 @@
 using ConsoleProject.Tools;
 
 Console.ForegroundColor = ConsoleColor.Red;
-Console.WriteLine("Please maximise your console to continue");
-Console.WriteLine("Do not use Microsoft Terminal");
+Console.WriteLine("Please maximise your console to continue.");
+Console.WriteLine("Do not use Microsoft Terminal.");
 Console.ResetColor();
 
 while (Console.WindowWidth < Console.LargestWindowWidth * 0.9 || Console.WindowHeight < Console.LargestWindowHeight * 0.9)
@@ -12,13 +12,14 @@ while (Console.WindowWidth < Console.LargestWindowWidth * 0.9 || Console.WindowH
 }
 
 API api = new ();
-await api.GetData();
+await api.FetchData();
 
 Grid gridA = new (api.Width, api.Height);
 
 foreach (int boatSize in api.BoatSizes)
 {
     InputHandler.PlaceBoatOnGrid("Player A", gridA, boatSize);
+    break;
 }
 
 Grid gridB = new (api.Width, api.Height);
@@ -26,6 +27,7 @@ Grid gridB = new (api.Width, api.Height);
 foreach (int boatSize in api.BoatSizes)
 {
     InputHandler.PlaceBoatOnGrid("Player B", gridB, boatSize);
+    break;
 }
 
 do

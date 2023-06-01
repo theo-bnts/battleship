@@ -1,14 +1,24 @@
 ﻿namespace ConsoleProject.Entities
 {
+    /// <summary>
+    /// Represents a boat entity.
+    /// </summary>
     internal class Boat
     {
         private readonly List<Cell> cells;
 
+        /// <summary>
+        /// Gets the list of cells that make up the boat.
+        /// </summary>
         public List<Cell> Cells
         {
             get { return cells; }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the Boat class with the specified cells.
+        /// </summary>
+        /// <param name="cells">The cells that make up the boat.</param>
         public Boat(List<Cell> cells)
         {
             if (cells.Count == 0)
@@ -16,7 +26,7 @@
                 throw new Exception("No boat cell");
             }
 
-            if (!Cell.AreHorizonltallyOrVerticallyAligned(cells))
+            if (!Cell.AreHorizontallyOrVerticallyAligned(cells))
             {
                 throw new Exception("Boat cells are not neighbours or horizontally / vertically aligned");
             }
@@ -24,104 +34,71 @@
             this.cells = cells;
         }
 
-        public static bool CanBePlacedOnGrid(Grid grid, List<Cell> firstsCells, int size)
+        /// <summary>
+        /// Checks if a boat can be placed on the grid based on the specified first cells and size.
+        /// </summary>
+        /// <param name="grid">The grid on which to place the boat.</param>
+        /// <param name="firstsCells">The first cells of the boat.</param>
+        /// <param name="size">The size of the boat.</param>
+        /// <returns>True if the boat can be placed on the grid; otherwise, false.</returns>
+        public static bool CanBePlacedOnGrid(Grid grid, List<Cell> firstCells, int size)
         {
-            if (firstsCells.Count == 0)
+            static int CountAvailableCellsInAlignment(Grid grid, int startX, int startY, int deltaX, int deltaY)
+            {
+                int count = 0;
+                int x = startX;
+                int y = startY;
+
+                while (x >= 0 && x < grid.Width && y >= 0 && y < grid.Height)
+                {
+                    if (!grid.GetCell(x, y).Selected)
+                    {
+                        count++;
+                    }
+                    else
+                    {
+                        count--;
+                        break;
+                    }
+
+                    x += deltaX;
+                    y += deltaY;
+                }
+
+                return count;
+            }
+
+            if (firstCells.Count == 0)
             {
                 throw new Exception("No boat cell");
             }
 
-            if (!Cell.AreHorizonltallyOrVerticallyAligned(firstsCells))
+            if (!Cell.AreHorizontallyOrVerticallyAligned(firstCells))
             {
-                throw new Exception("Boat cells are not neighbours or horizontally / vertically aligned");
+                throw new Exception("Boat cells are not neighbors or horizontally/vertically aligned");
             }
 
-            firstsCells = Cell.SortByAbscissaAndOrdinate(firstsCells);
+            var sortedCells = Cell.SortByAbscissaAndOrdinate(firstCells);
 
             bool canBePlaced = false;
-            int availableCellsInAlignment = 0;
+            int availableCellsInAlignment;
 
-            if (firstsCells.Count == 1 || firstsCells[0].IsHorizontalNeighbour(firstsCells[1]))
+            if (sortedCells.Count == 1 || sortedCells[0].IsHorizontalNeighbour(sortedCells[1]))
             {
-                for (int x = firstsCells[0].X - 1; x >= 0; x--)
-                {
-                    if (x >= 0 && x < grid.Width)
-                    {
-                        if (!grid.GetCell(x, firstsCells[0].Y).Selected)
-                        {
-                            availableCellsInAlignment++;
-                        }
-                        else
-                        {
-                            availableCellsInAlignment--;
+                availableCellsInAlignment = CountAvailableCellsInAlignment(grid, sortedCells[0].X - 1, sortedCells[0].Y, -1, 0);
+                availableCellsInAlignment += CountAvailableCellsInAlignment(grid, sortedCells[^1].X + 1, sortedCells[0].Y, 1, 0);
 
-                            break;
-                        }
-                    }
-                }
-
-                for (int x = firstsCells[firstsCells.Count - 1].X + 1; x < grid.Width; x++)
-                {
-                    if (x >= 0 && x < grid.Width)
-                    {
-                        if (!grid.GetCell(x, firstsCells[0].Y).Selected)
-                        {
-                            availableCellsInAlignment++;
-                        }
-                        else
-                        {
-                            availableCellsInAlignment--;
-
-                            break;
-                        }
-                    }
-                }
-
-                if (availableCellsInAlignment >= size - firstsCells.Count)
+                if (availableCellsInAlignment >= size - sortedCells.Count)
                 {
                     canBePlaced = true;
                 }
             }
-
-            availableCellsInAlignment = 0;
-
-            if (firstsCells.Count == 1 || firstsCells[0].IsVerticalNeighbour(firstsCells[1]))
+            else if (sortedCells.Count == 1 || sortedCells[0].IsVerticalNeighbour(sortedCells[1]))
             {
-                for (int y = firstsCells[0].Y - 1; y >= 0; y--)
-                {
-                    if (y >= 0 && y < grid.Height)
-                    {
-                        if (!grid.GetCell(firstsCells[0].X, y).Selected)
-                        {
-                            availableCellsInAlignment++;
-                        }
-                        else
-                        {
-                            availableCellsInAlignment--;
+                availableCellsInAlignment = CountAvailableCellsInAlignment(grid, sortedCells[0].X, sortedCells[0].Y - 1, 0, -1);
+                availableCellsInAlignment += CountAvailableCellsInAlignment(grid, sortedCells[0].X, sortedCells[^1].Y + 1, 0, 1);
 
-                            break;
-                        }
-                    }
-                }
-
-                for (int y = firstsCells[firstsCells.Count - 1].Y + 1; y < grid.Height; y++)
-                {
-                    if (y >= 0 && y < grid.Height)
-                    {
-                        if (!grid.GetCell(firstsCells[0].X, y).Selected)
-                        {
-                            availableCellsInAlignment++;
-                        }
-                        else
-                        {
-                            availableCellsInAlignment--;
-
-                            break;
-                        }
-                    }
-                }
-
-                if (availableCellsInAlignment >= size - firstsCells.Count)
+                if (availableCellsInAlignment >= size - sortedCells.Count)
                 {
                     canBePlaced = true;
                 }
@@ -130,6 +107,10 @@
             return canBePlaced;
         }
 
+        /// <summary>
+        /// Checks if the boat is destroyed, meaning all of its cells have been discovered.
+        /// </summary>
+        /// <returns>True if the boat is destroyed; otherwise, false.</returns>
         public bool IsDestroyed()
         {
             return cells.All(cell => cell.Discover == true);
