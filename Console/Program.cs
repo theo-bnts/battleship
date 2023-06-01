@@ -19,7 +19,6 @@ Grid gridA = new (api.Width, api.Height);
 foreach (int boatSize in api.BoatSizes)
 {
     InputHandler.PlaceBoatOnGrid("Player A", gridA, boatSize);
-    break;
 }
 
 Grid gridB = new (api.Width, api.Height);
@@ -27,7 +26,6 @@ Grid gridB = new (api.Width, api.Height);
 foreach (int boatSize in api.BoatSizes)
 {
     InputHandler.PlaceBoatOnGrid("Player B", gridB, boatSize);
-    break;
 }
 
 do
